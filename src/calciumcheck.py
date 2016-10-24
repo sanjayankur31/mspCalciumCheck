@@ -23,12 +23,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import print_function
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import nest
 import numpy
 
 points = []
+all_times = []
+all_calcs = []
+all_currents = []
 
-for current in numpy.arange(0, 901, 5, dtype=float):
+for current in numpy.arange(0, 901, 50, dtype=float):
     nest.ResetKernel()
     neuron_dict = {'V_m': -60.,
                    't_ref': 5.0, 'V_reset': -60.,
@@ -44,12 +50,43 @@ for current in numpy.arange(0, 901, 5, dtype=float):
     detector = nest.Create('spike_detector')
     nest.Connect(neuron, detector)
 
-    nest.Simulate(10000)
-    rate = nest.GetStatus(detector, "n_events")[0] / 10.
-    calcium_conc = nest.GetStatus(neuron, 'Ca')[0]
-    points.append([current, rate, calcium_conc])
+    times = []
+    calc = []
 
-with open("calcium-data.txt", 'w') as outputfile:
-    for point in points:
-        print("{}\t{}\t{}".format(point[0], point[1], point[2]),
-              file=outputfile)
+    for steps in numpy.arange(0, 10000):
+        nest.Simulate(1)
+        calcium_conc = nest.GetStatus(neuron, 'Ca')[0]
+        times.append(nest.GetKernelStatus()['time'])
+        calc.append(calcium_conc)
+        points.append([nest.GetKernelStatus()['time'], calcium_conc])
+
+    all_times.append(times)
+    all_calcs.append(calc)
+    all_currents.append("{}pA".format(current))
+
+    with open("calcium-data-{}pA.txt".format(current), 'w') as outputfile:
+        for point in points:
+            print("{}\t{}".format(point[0], point[1]),
+                  file=outputfile)
+
+    fig = plt.figure(figsize=(15,10))
+    axes = plt.gca()
+    axes.set_ylim([0,0.9])
+    plt.xlabel('time (ms)')
+    plt.ylabel('calcium concentration')
+    plt.title('Calcium concentration with {} pA constant current'.format(current))
+    plt.plot(times, calc)
+    plt.savefig("calium-data-{}pA.png".format(current))
+    plt.close(fig)
+
+fig2 = plt.figure(figsize=(15,10))
+axes = plt.gca()
+axes.set_ylim([0,0.9])
+plt.xlabel('time (ms)')
+plt.ylabel('calcium concentration')
+plt.title('Calcium concentration with different pA constant current'.format(current))
+for i in range(0, len(all_times)):
+    plt.plot(all_times[i], all_calcs[i])
+plt.legend(all_currents, loc='upper left')
+plt.savefig("calium-data-combined.png".format(current))
+plt.close(fig2)
