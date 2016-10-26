@@ -60,6 +60,14 @@ for current in numpy.arange(0, 901, 50, dtype=float):
         calc.append(calcium_conc)
         points.append([nest.GetKernelStatus()['time'], calcium_conc])
 
+    nest.SetStatus(neuron, {'I_e': 0.})
+    for steps in numpy.arange(0, 50000):
+        nest.Simulate(1)
+        calcium_conc = nest.GetStatus(neuron, 'Ca')[0]
+        times.append(nest.GetKernelStatus()['time'])
+        calc.append(calcium_conc)
+        points.append([nest.GetKernelStatus()['time'], calcium_conc])
+
     all_times.append(times)
     all_calcs.append(calc)
     all_currents.append("{}pA".format(current))
@@ -75,6 +83,7 @@ for current in numpy.arange(0, 901, 50, dtype=float):
     plt.xlabel('time (ms)')
     plt.ylabel('calcium concentration')
     plt.title('Calcium concentration with {} pA constant current'.format(current))
+    plt.axvline(x=50000)
     plt.plot(times, calc)
     plt.savefig("calcium-data-{}pA.png".format(current))
     plt.close(fig)
@@ -85,6 +94,7 @@ axes.set_ylim([0,1.5])
 plt.xlabel('time (ms)')
 plt.ylabel('calcium concentration')
 plt.title('Calcium concentration with different pA constant current'.format(current))
+plt.axvline(x=50000)
 for i in range(0, len(all_times)):
     plt.plot(all_times[i], all_calcs[i])
 plt.legend(all_currents, loc='upper left')
