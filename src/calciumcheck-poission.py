@@ -43,7 +43,7 @@ for rate in numpy.arange(5, 50, 5, dtype=float):
                    'E_L': -60., 'g_L': 10.,
                    'E_ex': 0., 'E_in': -80.,
                    'tau_syn_ex': 5., 'tau_syn_in': 10.,
-                   'I_e': 0.
+                   'I_e': 0., 'beta_Ca': 0.012, 'tau_Ca': 1000.0
                    }
     poissonExtDict = {'rate': rate, 'origin': 0., 'start': 0.}
     nest.SetDefaults('iaf_cond_alpha', neuron_dict)
@@ -103,10 +103,12 @@ axes = plt.gca()
 # axes.set_ylim([0, 1.2])
 plt.xlabel('time (ms)')
 plt.ylabel('calcium concentration')
-plt.title('Ca conc with different input poisson stim'.format(rate))
+plt.title('Ca conc with different input poisson stim')
+lines = []
 for i in range(0, len(all_times)):
-    line = plt.plot(all_times[i], all_calcs[i])
+    line = plt.plot(all_times[i], all_calcs[i], label=all_rates[i])
     plt.axhline(y=numpy.mean(all_calcs[i]), color=line[0].get_color())
-plt.legend(all_rates, loc='upper left')
+    lines = lines + line
+plt.legend(handles=lines, loc='upper left')
 plt.savefig("calcium-data-combined.png".format(rate))
 plt.close(fig2)
