@@ -37,7 +37,7 @@ maxval = 0.
 
 for rate in numpy.arange(5, 50, 5, dtype=float):
     nest.ResetKernel()
-    neuron_dict = {'beta_Ca': 0.1, 'tau_Ca': 1000.0}
+    neuron_dict = {'beta_Ca': 0.012, 'tau_Ca': 1000.0}
     poissonExtDict = {'rate': rate, 'origin': 0., 'start': 0.}
     nest.SetDefaults('parrot_neuron', neuron_dict)
 
@@ -79,7 +79,7 @@ for rate in numpy.arange(5, 50, 5, dtype=float):
     plt.plot(times[4000:5000], rescaled_cal[4000:5000],
              label="([Ca2+] interval rescaled to [0,10], translated to x=-60")
     plt.legend()
-    plt.savefig("parrot-calcium-beta-inc-tau-dec-data-{}Hz.png".format(rate))
+    plt.savefig("parrot-calcium-beta-inc-tau-dec-0-data-{}Hz.png".format(rate))
     plt.close(fig)
 
 fig2 = plt.figure(figsize=(40, 10))
@@ -94,5 +94,5 @@ for i in range(0, len(all_times)):
     plt.axhline(y=numpy.mean(all_calcs[i]), color=line[0].get_color())
     lines = lines + line
 plt.legend(handles=lines, loc='upper left')
-plt.savefig("parrot-calcium-beta-inc-tau-dec-data-combined.png".format(rate))
+plt.savefig("parrot-calcium-beta-inc-tau-dec-0-data-combined.png".format(rate))
 plt.close(fig2)
